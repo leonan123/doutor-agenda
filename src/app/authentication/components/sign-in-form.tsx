@@ -25,7 +25,7 @@ import {
   FormMessage,
 } from '@/_components/ui/form'
 import { Input } from '@/_components/ui/input'
-import { getAuthErrorMessage } from '@/_helpers/get-error-message'
+import { getAuthErrorMessage } from '@/_helpers/get-auth-error-message'
 import { authClient } from '@/_lib/auth-client'
 
 const signInSchema = z.object({
