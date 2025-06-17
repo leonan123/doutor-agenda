@@ -99,13 +99,12 @@ export async function AppSidebar() {
               <span>{firstLetterOfLastName}</span>
             </div>
 
-            <div className="w-full font-medium">
-              <p className="text-sm">{session.user.name}</p>
+            <div className="w-full truncate font-medium">
+              <p className="truncate text-sm">{session.user.clinic.name}</p>
               <p className="text-muted-foreground truncate text-xs">
                 {session.user.email}
               </p>
             </div>
-
             <SignOutTooltipButton />
           </SidebarMenuItem>
         </SidebarMenu>
