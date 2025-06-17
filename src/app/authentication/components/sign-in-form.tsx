@@ -25,6 +25,7 @@ import {
   FormMessage,
 } from '@/_components/ui/form'
 import { Input } from '@/_components/ui/input'
+import { getAuthErrorMessage } from '@/_helpers/get-error-message'
 import { authClient } from '@/_lib/auth-client'
 
 const signInSchema = z.object({
@@ -61,13 +62,19 @@ export function SignInForm() {
         onSuccess: () => {
           router.push('/dashboard')
         },
-        onError: () => {
-          toast.error('Email ou senha inválidos')
-        },
       },
     )
 
-    console.log(error)
+    if (error && error.code) {
+      const message = getAuthErrorMessage(error.code, 'ptBr')
+
+      if (message) {
+        toast.error(message)
+        return
+      }
+
+      toast.error('Não foi possível fazer login')
+    }
   }
 
   return (

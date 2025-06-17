@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2Icon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { Button } from '@/_components/ui/button'
@@ -24,6 +25,7 @@ import {
   FormMessage,
 } from '@/_components/ui/form'
 import { Input } from '@/_components/ui/input'
+import { getAuthErrorMessage } from '@/_helpers/get-error-message'
 import { authClient } from '@/_lib/auth-client'
 
 const registerSchema = z.object({
@@ -53,7 +55,7 @@ export function SignUpForm() {
   })
 
   async function onSubmit(data: RegisterSchema) {
-    await authClient.signUp.email(
+    const { error } = await authClient.signUp.email(
       {
         name: data.name,
         email: data.email,
@@ -65,6 +67,17 @@ export function SignUpForm() {
         },
       },
     )
+
+    if (error && error.code) {
+      const message = getAuthErrorMessage(error.code, 'ptBr')
+
+      if (message) {
+        toast.error(message)
+        return
+      }
+
+      toast.error('Não foi possível criar sua conta, tente novamente')
+    }
   }
 
   return (
