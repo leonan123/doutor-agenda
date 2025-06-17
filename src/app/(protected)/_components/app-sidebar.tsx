@@ -20,7 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/_components/ui/sidebar'
-import { getFirstLetterFromUsername } from '@/_helpers/get-first-letter-from-username'
+import { extractInitialsFromUsername } from '@/_helpers/get-first-letter-from-username'
 import { auth } from '@/_lib/auth'
 
 import { SignOutTooltipButton } from './sign-out-tooltip-button'
@@ -58,7 +58,7 @@ export async function AppSidebar() {
     redirect('/authentication')
   }
 
-  const firstLettersOfUsername = getFirstLetterFromUsername(session.user.name)
+  const firstLettersOfUsername = extractInitialsFromUsername(session.user.name)
 
   return (
     <Sidebar>
