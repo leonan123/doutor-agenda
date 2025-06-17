@@ -1,14 +1,6 @@
-import { Button } from '@/_components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/_components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/_components/ui/tabs'
 
+import { SignInForm } from './components/sign-in-form'
 import { SignUpForm } from './components/sign-up-form'
 
 export default function AuthenticationPage() {
@@ -21,18 +13,7 @@ export default function AuthenticationPage() {
         </TabsList>
 
         <TabsContent value="login">
-          <Card>
-            <CardHeader>
-              <CardTitle>Login</CardTitle>
-              <CardDescription>Faça login para continuar.</CardDescription>
-            </CardHeader>
-
-            <CardContent className="grid gap-6"></CardContent>
-
-            <CardFooter>
-              <Button>Entrar</Button>
-            </CardFooter>
-          </Card>
+          <SignInForm />
         </TabsContent>
 
         <TabsContent value="register">
