@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2Icon } from 'lucide-react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -52,7 +53,7 @@ export function SignInForm() {
     },
   })
 
-  async function onSubmit(data: SignInData) {
+  async function handleSignInSubmit(data: SignInData) {
     const { error } = await authClient.signIn.email(
       {
         email: data.email,
@@ -77,6 +78,14 @@ export function SignInForm() {
     }
   }
 
+  function handleGoogleSignIn() {
+    authClient.signIn.social({
+      provider: 'google',
+      callbackURL: '/dashboard',
+      scopes: ['email', 'profile'],
+    })
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -85,7 +94,10 @@ export function SignInForm() {
       </CardHeader>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(handleSignInSubmit)}
+          className="space-y-8"
+        >
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
@@ -128,12 +140,27 @@ export function SignInForm() {
             />
           </CardContent>
 
-          <CardFooter>
+          <CardFooter className="flex-col gap-3">
             <Button className="w-full">
               {form.formState.isSubmitting && (
                 <Loader2Icon className="mr-2 animate-spin" />
               )}
               Entrar
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleGoogleSignIn}
+            >
+              <Image
+                src="/google-logo.svg"
+                alt="Google"
+                width={20}
+                height={20}
+              />
+              Entrar com Google
             </Button>
           </CardFooter>
         </form>

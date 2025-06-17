@@ -17,6 +17,4 @@ export const createClinic = protectedAction(async (session, name: string) => {
     userId: session.user.id,
     clinicId: clinic.id,
   })
-
-  return clinic
 })
