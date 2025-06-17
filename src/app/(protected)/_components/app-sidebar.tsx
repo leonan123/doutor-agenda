@@ -20,6 +20,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/_components/ui/sidebar'
+import { getFirstLetterFromUsername } from '@/_helpers/get-first-letter-from-username'
 import { auth } from '@/_lib/auth'
 
 import { SignOutTooltipButton } from './sign-out-tooltip-button'
@@ -57,9 +58,7 @@ export async function AppSidebar() {
     redirect('/authentication')
   }
 
-  const [firstName, ...restOfName] = session.user.name.split(' ')
-  const firstLetterOfFirstName = firstName[0]
-  const firstLetterOfLastName = restOfName[restOfName.length - 1][0]
+  const firstLettersOfUsername = getFirstLetterFromUsername(session.user.name)
 
   return (
     <Sidebar>
@@ -95,8 +94,7 @@ export async function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-3">
             <div className="bg-muted-foreground/10 flex size-10 shrink-0 items-center justify-center rounded-xl">
-              <span>{firstLetterOfFirstName}</span>
-              <span>{firstLetterOfLastName}</span>
+              <span>{firstLettersOfUsername}</span>
             </div>
 
             <div className="w-full truncate font-medium">

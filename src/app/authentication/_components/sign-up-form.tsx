@@ -29,7 +29,19 @@ import { getAuthErrorMessage } from '@/_helpers/get-auth-error-message'
 import { authClient } from '@/_lib/auth-client'
 
 const registerSchema = z.object({
-  name: z.string().trim().min(1, { message: 'O nome é obrigatório' }),
+  fullName: z
+    .string()
+    .trim()
+    .min(1, { message: 'O nome é obrigatório' })
+    .refine(
+      (value) => {
+        const nameParts = value.split(' ')
+        return nameParts.length >= 2
+      },
+      {
+        message: 'Informe seu nome completo',
+      },
+    ),
   email: z
     .string()
     .trim()
@@ -48,7 +60,7 @@ export function SignUpForm() {
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: '',
+      fullName: '',
       email: '',
       password: '',
     },
@@ -57,7 +69,7 @@ export function SignUpForm() {
   async function onSubmit(data: RegisterSchema) {
     const { error } = await authClient.signUp.email(
       {
-        name: data.name,
+        name: data.fullName,
         email: data.email,
         password: data.password,
       },
@@ -92,10 +104,10 @@ export function SignUpForm() {
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
-              name="name"
+              name="fullName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Nome completo</FormLabel>
 
                   <FormControl>
                     <Input placeholder="Digite seu nome" {...field} />
