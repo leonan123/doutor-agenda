@@ -1,6 +1,8 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2Icon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -22,6 +24,7 @@ import {
   FormMessage,
 } from '@/_components/ui/form'
 import { Input } from '@/_components/ui/input'
+import { authClient } from '@/_lib/auth-client'
 
 const registerSchema = z.object({
   name: z.string().trim().min(1, { message: 'O nome é obrigatório' }),
@@ -39,6 +42,7 @@ const registerSchema = z.object({
 type RegisterSchema = z.infer<typeof registerSchema>
 
 export function SignUpForm() {
+  const router = useRouter()
   const form = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -48,8 +52,19 @@ export function SignUpForm() {
     },
   })
 
-  function onSubmit(data: RegisterSchema) {
-    console.log(data)
+  async function onSubmit(data: RegisterSchema) {
+    await authClient.signUp.email(
+      {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      },
+      {
+        onSuccess: () => {
+          router.push('/dashboard')
+        },
+      },
+    )
   }
 
   return (
@@ -119,7 +134,14 @@ export function SignUpForm() {
           </CardContent>
 
           <CardFooter>
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting && (
+                <Loader2Icon className="mr-2 animate-spin" />
+              )}
               Criar conta
             </Button>
           </CardFooter>
