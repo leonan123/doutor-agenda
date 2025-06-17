@@ -27,7 +27,7 @@ export default async function DashboardPage() {
     <div>
       <h1>Dashboard</h1>
 
-      <pre className="font-mono">{JSON.stringify(session, null, 2)}</pre>
+      {/* <pre className="font-mono">{JSON.stringify(session, null, 2)}</pre> */}
     </div>
   )
 }
