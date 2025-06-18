@@ -10,7 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from '@/_components/ui/sidebar'
-import { extractInitialsFromUsername } from '@/_helpers/get-first-letter-from-username'
+import { extractInitialsFromUsername } from '@/_helpers/extract-initials-from-username'
 import { auth } from '@/_lib/auth'
 
 import { MainMenu } from './menu-item'

@@ -1,5 +1,7 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
+
 import { db } from '@/_db'
 import { doctorsTable } from '@/_db/schema'
 import { convertTimeToUTC } from '@/_helpers/convert-time-to-utc'
@@ -36,4 +38,6 @@ export const upsertDoctor = actionClient
           availableToTime: availableToTimeUTC.format('HH:mm:ss'),
         },
       })
+
+    revalidatePath('/doctors')
   })

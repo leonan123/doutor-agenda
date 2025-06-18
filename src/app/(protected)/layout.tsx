@@ -11,7 +11,7 @@ export default function ProtectedLayout({
     <SidebarProvider>
       <AppSidebar />
 
-      <main className="w-full">
+      <main className="bg-background w-full">
         <SidebarTrigger className="ml-4" />
         <div>{children}</div>
       </main>
