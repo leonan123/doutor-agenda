@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/_components/ui/select'
+import type { doctorsTable } from '@/_db/schema'
 
 import { medicalSpecialties } from '../_constants'
 
@@ -72,18 +73,24 @@ const upsertDoctorSchema = z
 
 type UpsertDoctorFormData = z.infer<typeof upsertDoctorSchema>
 
-export function UpsertDoctorForm() {
+interface UpsertDoctorFormProps {
+  doctor?: typeof doctorsTable.$inferSelect
+}
+
+export function UpsertDoctorForm({ doctor }: UpsertDoctorFormProps) {
   const closeDialogButtonRef = useRef<HTMLButtonElement>(null)
   const form = useForm<UpsertDoctorFormData>({
     resolver: zodResolver(upsertDoctorSchema),
     defaultValues: {
-      name: '',
-      specialty: '',
-      appointmentsPrice: 0,
-      availableFromWeekday: '1',
-      availableToWeekday: '5',
-      availableFromTime: '',
-      availableToTime: '',
+      name: doctor?.name ?? '',
+      specialty: doctor?.specialty ?? '',
+      appointmentsPrice: doctor?.appointmentPriceInCents
+        ? doctor.appointmentPriceInCents / 100
+        : 0,
+      availableFromWeekday: doctor?.availableFromWeekday.toString() ?? '1',
+      availableToWeekday: doctor?.availableToWeekday.toString() ?? '5',
+      availableFromTime: doctor?.availableFromTime ?? '',
+      availableToTime: doctor?.availableToTime ?? '',
     },
   })
 
@@ -105,6 +112,7 @@ export function UpsertDoctorForm() {
   function onSubmit(data: UpsertDoctorFormData) {
     upsertDoctorAction.execute({
       ...data,
+      id: doctor?.id,
       availableFromWeekday: parseInt(data.availableFromWeekday),
       availableToWeekday: parseInt(data.availableToWeekday),
       appointmentPriceInCents: data.appointmentsPrice * 100,
@@ -114,9 +122,11 @@ export function UpsertDoctorForm() {
   return (
     <DialogContent className="sm:max-w-[calc(100%-2rem)] md:max-w-3xl">
       <DialogHeader>
-        <DialogTitle>Adicionar médico</DialogTitle>
+        <DialogTitle>{doctor ? 'Editar' : 'Adicionar'} médico</DialogTitle>
         <DialogDescription>
-          Adicione um novo médico ao seu perfil
+          {doctor
+            ? 'Edite os dados do médico'
+            : 'Adicione um novo médico ao seu perfil'}
         </DialogDescription>
       </DialogHeader>
 
@@ -395,7 +405,7 @@ export function UpsertDoctorForm() {
             <Button disabled={upsertDoctorAction.isPending}>
               {upsertDoctorAction.isPending ? (
                 <>
-                  <Loader2Icon className="mr-2 animate-spin" />
+                  <Loader2Icon className="animate-spin" />
                   <span>Salvando...</span>
                 </>
               ) : (
