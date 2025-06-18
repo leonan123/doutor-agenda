@@ -1,9 +1,3 @@
-import {
-  BriefcaseMedical,
-  CalendarPlus2,
-  LayoutDashboard,
-  UsersIcon,
-} from 'lucide-react'
 import { headers } from 'next/headers'
 import Image from 'next/image'
 import { redirect } from 'next/navigation'
@@ -12,42 +6,15 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from '@/_components/ui/sidebar'
 import { extractInitialsFromUsername } from '@/_helpers/get-first-letter-from-username'
 import { auth } from '@/_lib/auth'
 
+import { MainMenu } from './menu-item'
 import { SignOutTooltipButton } from './sign-out-tooltip-button'
-
-// Menu items.
-const items = [
-  {
-    title: 'Dashboard',
-    url: '#',
-    icon: LayoutDashboard,
-  },
-  {
-    title: 'Agendamentos',
-    url: '/appointments',
-    icon: CalendarPlus2,
-  },
-  {
-    title: 'Médicos',
-    url: '/doctors',
-    icon: BriefcaseMedical,
-  },
-  {
-    title: 'Pacientes',
-    url: '/patients',
-    icon: UsersIcon,
-  },
-]
 
 export async function AppSidebar() {
   const session = await auth.api.getSession({
@@ -68,26 +35,12 @@ export async function AppSidebar() {
           alt="Doutor Agenda"
           width={136.5198974609375}
           height={27.79203987121582}
+          priority
         />
       </SidebarHeader>
+
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu principal</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <MainMenu />
       </SidebarContent>
 
       <SidebarFooter>
