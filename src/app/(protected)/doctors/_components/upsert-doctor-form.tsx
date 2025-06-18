@@ -1,8 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { DialogClose } from '@radix-ui/react-dialog'
+import { Loader2Icon, SaveIcon } from 'lucide-react'
+import { useAction } from 'next-safe-action/hooks'
+import { useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { NumericFormat } from 'react-number-format'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
+import { upsertDoctor } from '@/_actions/upsert-doctor'
 import { Button } from '@/_components/ui/button'
 import {
   DialogContent,
@@ -32,15 +38,11 @@ import {
 
 import { medicalSpecialties } from '../_constants'
 
-const formSchema = z
+const upsertDoctorSchema = z
   .object({
     name: z.string().trim().min(1, 'O nome é obrigatório'),
     specialty: z.string().trim().min(1, 'A especialidade é obrigatória'),
     appointmentsPrice: z.number().min(1, 'O preço da consulta é obrigatório'),
-    appointmentDuration: z
-      .string()
-      .trim()
-      .min(1, 'A duração da consulta é obrigatória'),
     availableFromWeekday: z
       .string()
       .trim()
@@ -68,16 +70,16 @@ const formSchema = z
     },
   )
 
-type UpsertDoctorFormData = z.infer<typeof formSchema>
+type UpsertDoctorFormData = z.infer<typeof upsertDoctorSchema>
 
 export function UpsertDoctorForm() {
+  const closeDialogButtonRef = useRef<HTMLButtonElement>(null)
   const form = useForm<UpsertDoctorFormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(upsertDoctorSchema),
     defaultValues: {
       name: '',
       specialty: '',
       appointmentsPrice: 0,
-      appointmentDuration: '',
       availableFromWeekday: '1',
       availableToWeekday: '5',
       availableFromTime: '',
@@ -85,8 +87,28 @@ export function UpsertDoctorForm() {
     },
   })
 
-  async function onSubmit(data: UpsertDoctorFormData) {
-    console.log(data)
+  const upsertDoctorAction = useAction(upsertDoctor, {
+    onSuccess: () => {
+      toast.success('Médico adicionado com sucesso', {
+        className: 'z-50',
+        position: 'bottom-center',
+      })
+      closeDialogButtonRef.current?.click()
+    },
+    onError: () => {
+      toast.error('Erro ao adicionar médico, tente novamente', {
+        className: 'z-50',
+      })
+    },
+  })
+
+  function onSubmit(data: UpsertDoctorFormData) {
+    upsertDoctorAction.execute({
+      ...data,
+      availableFromWeekday: parseInt(data.availableFromWeekday),
+      availableToWeekday: parseInt(data.availableToWeekday),
+      appointmentPriceInCents: data.appointmentsPrice * 100,
+    })
   }
 
   return (
@@ -369,7 +391,20 @@ export function UpsertDoctorForm() {
           </div>
 
           <DialogFooter>
-            <Button>Salvar</Button>
+            <DialogClose ref={closeDialogButtonRef} />
+            <Button disabled={upsertDoctorAction.isPending}>
+              {upsertDoctorAction.isPending ? (
+                <>
+                  <Loader2Icon className="mr-2 animate-spin" />
+                  <span>Salvando...</span>
+                </>
+              ) : (
+                <>
+                  <SaveIcon />
+                  <span>Salvar</span>
+                </>
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </Form>

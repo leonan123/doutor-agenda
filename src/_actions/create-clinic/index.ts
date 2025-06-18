@@ -3,7 +3,7 @@
 import { db } from '@/_db'
 import { clinicsTable, usersToClinicsTable } from '@/_db/schema'
 
-import { protectedAction } from '../_middlewares/with-auth'
+import { protectedAction } from '../_middlewares/protected-action'
 
 export const createClinic = protectedAction(async (session, name: string) => {
   const [clinic] = await db
