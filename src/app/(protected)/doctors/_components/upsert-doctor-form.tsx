@@ -80,6 +80,7 @@ interface UpsertDoctorFormProps {
 export function UpsertDoctorForm({ doctor }: UpsertDoctorFormProps) {
   const closeDialogButtonRef = useRef<HTMLButtonElement>(null)
   const form = useForm<UpsertDoctorFormData>({
+    shouldUnregister: true,
     resolver: zodResolver(upsertDoctorSchema),
     defaultValues: {
       name: doctor?.name ?? '',
