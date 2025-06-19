@@ -1,8 +1,15 @@
-import type { ReactNode } from 'react'
+import type { ComponentProps, ReactNode } from 'react'
 
-export function PageContainer({ children }: { children: ReactNode }) {
+import { cn } from '@/_lib/utils'
+
+type PageContainerProps = ComponentProps<'div'>
+
+export function PageContainer({ children, className }: PageContainerProps) {
   return (
-    <div data-slot="page-container" className="space-y-6 p-6">
+    <div
+      data-slot="page-container"
+      className={cn('h-full space-y-6 p-6', className)}
+    >
       {children}
     </div>
   )
@@ -48,9 +55,11 @@ export function PageActions({ children }: { children: ReactNode }) {
   )
 }
 
-export function PageContent({ children }: { children: ReactNode }) {
+type PageContentProps = ComponentProps<'div'>
+
+export function PageContent({ children, className }: PageContentProps) {
   return (
-    <div data-slot="page-content" className="space-y-6">
+    <div data-slot="page-content" className={cn('space-y-6', className)}>
       {children}
     </div>
   )

@@ -36,7 +36,7 @@ export default async function PatientsPage() {
         </PageActions>
       </PageHeader>
 
-      <PageContent>
+      <PageContent className="h-full rounded-lg bg-white px-6 py-5 shadow-sm">
         <DataTable data={patients} columns={columns} />
       </PageContent>
     </PageContainer>

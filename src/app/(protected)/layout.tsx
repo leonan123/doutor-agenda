@@ -13,7 +13,7 @@ export default function ProtectedLayout({
 
       <main className="bg-background w-full">
         <SidebarTrigger className="ml-4" />
-        <div>{children}</div>
+        <div className="h-[calc(100%-7rem)]">{children}</div>
       </main>
     </SidebarProvider>
   )
