@@ -4,20 +4,18 @@ import { createMiddleware } from 'next-safe-action'
 
 import { auth } from '@/_lib/auth'
 
-export const authMiddleware = createMiddleware().define(
-  async ({ ctx: _, next }) => {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    })
+export const authMiddleware = createMiddleware().define(async ({ next }) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
 
-    if (!session?.user) {
-      redirect('/authentication')
-    }
+  if (!session?.user) {
+    redirect('/authentication')
+  }
 
-    return next({
-      ctx: {
-        session,
-      },
-    })
-  },
-)
+  return next({
+    ctx: {
+      session,
+    },
+  })
+})

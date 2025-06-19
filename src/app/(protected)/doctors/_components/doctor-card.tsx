@@ -18,6 +18,7 @@ import { formatCurrencyInCents } from '@/_helpers/currency'
 import { extractInitialsFromUsername } from '@/_helpers/extract-initials-from-username'
 import { getAvailability } from '@/_helpers/get-availability'
 
+import { DeleteDoctorButton } from './delete-doctor-button'
 import { UpsertDoctorForm } from './upsert-doctor-form'
 
 interface DoctorCardProps {
@@ -31,17 +32,21 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Avatar className="size-16">
             <AvatarFallback className="font-semibold">
               {doctorInitials}
             </AvatarFallback>
           </Avatar>
 
-          <div className="text-sm font-medium">
-            <h3>{doctor.name}</h3>
+          <div className="flex-1 truncate text-sm font-medium">
+            <h3 title={doctor.name} className="truncate">
+              {doctor.name}
+            </h3>
             <p className="text-muted-foreground">{doctor.specialty}</p>
           </div>
+
+          <DeleteDoctorButton doctorId={doctor.id} />
         </div>
       </CardHeader>
 
@@ -76,10 +81,10 @@ export function DoctorCard({ doctor }: DoctorCardProps) {
         <Separator />
       </div>
 
-      <CardFooter>
+      <CardFooter className="flex items-center gap-2">
         <Dialog>
           <DialogTrigger asChild>
-            <Button className="w-full">Ver detalhes</Button>
+            <Button className="flex-1">Ver detalhes</Button>
           </DialogTrigger>
 
           <UpsertDoctorForm
