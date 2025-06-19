@@ -1,6 +1,7 @@
 'use server'
 
 import { eq } from 'drizzle-orm'
+import { revalidatePath } from 'next/cache'
 
 import { db } from '@/_db'
 import { patientsTable } from '@/_db/schema'
@@ -32,7 +33,7 @@ export const upsertPatient = actionClient
       return patient
     }
 
-    const [patient] = await db
+    await db
       .insert(patientsTable)
       .values({
         clinicId: session.user.clinic.id,
@@ -43,5 +44,5 @@ export const upsertPatient = actionClient
       })
       .returning()
 
-    return patient
+    revalidatePath('/patients')
   })

@@ -1,5 +1,6 @@
-'use client'
+import { asc } from 'drizzle-orm'
 
+import { DataTable } from '@/_components/ui/data-table'
 import {
   PageActions,
   PageContainer,
@@ -9,10 +10,17 @@ import {
   PageHeaderContent,
   PageTitle,
 } from '@/_components/ui/page-container'
+import { db } from '@/_db'
+import { patientsTable } from '@/_db/schema'
 
 import { AddPatientButton } from './_components/add-patient-button'
+import { columns } from './_components/table-columns'
 
-export default function PatientsPage() {
+export default async function PatientsPage() {
+  const patients = await db.query.patientsTable.findMany({
+    orderBy: [asc(patientsTable.createdAt)],
+  })
+
   return (
     <PageContainer>
       <PageHeader>
@@ -29,7 +37,7 @@ export default function PatientsPage() {
       </PageHeader>
 
       <PageContent>
-        <>{/* TODO: Add patients list */}</>
+        <DataTable data={patients} columns={columns} />
       </PageContent>
     </PageContainer>
   )
