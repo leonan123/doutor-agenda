@@ -92,8 +92,6 @@ export function UpsertPatientForm({ patient }: UpsertPatientFormProps) {
     })
   }
 
-  console.log(patient)
-
   return (
     <DialogContent onCloseAutoFocus={handleDialogClose}>
       <DialogHeader>
