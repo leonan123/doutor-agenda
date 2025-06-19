@@ -66,7 +66,12 @@ export function UpsertPatientForm({ patient }: UpsertPatientFormProps) {
   })
 
   function handleDialogClose() {
-    form.reset()
+    form.reset({
+      name: patient?.name ?? '',
+      email: patient?.email ?? '',
+      phoneNumber: patient?.phoneNumber ?? '',
+      sex: patient?.sex ?? undefined,
+    })
   }
 
   const upsertPatientAction = useAction(upsertPatient, {
@@ -86,6 +91,8 @@ export function UpsertPatientForm({ patient }: UpsertPatientFormProps) {
       id: patient?.id,
     })
   }
+
+  console.log(patient)
 
   return (
     <DialogContent onCloseAutoFocus={handleDialogClose}>

@@ -1,6 +1,5 @@
 'use server'
 
-import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 
 import { db } from '@/_db'
@@ -18,31 +17,18 @@ export const upsertPatient = actionClient
       throw new Error('Clinic not found.')
     }
 
-    if (parsedInput.id) {
-      const [patient] = await db
-        .update(patientsTable)
-        .set({
-          name: parsedInput.name,
-          email: parsedInput.email,
-          phoneNumber: parsedInput.phoneNumber,
-          sex: parsedInput.sex,
-        })
-        .where(eq(patientsTable.id, parsedInput.id))
-        .returning()
-
-      return patient
-    }
-
     await db
       .insert(patientsTable)
       .values({
+        ...parsedInput,
         clinicId: session.user.clinic.id,
-        name: parsedInput.name,
-        email: parsedInput.email,
-        phoneNumber: parsedInput.phoneNumber,
-        sex: parsedInput.sex,
       })
-      .returning()
+      .onConflictDoUpdate({
+        target: patientsTable.id,
+        set: {
+          ...parsedInput,
+        },
+      })
 
     revalidatePath('/patients')
   })
