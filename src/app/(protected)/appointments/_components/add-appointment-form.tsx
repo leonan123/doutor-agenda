@@ -3,6 +3,7 @@
 import 'dayjs/locale/pt-br'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { CalendarIcon, Loader2Icon } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
@@ -13,6 +14,7 @@ import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { addAppointment } from '@/_actions/add-appointment'
+import { getAvailableTimes } from '@/_actions/get-available-times'
 import { Button } from '@/_components/ui/button'
 import { Calendar } from '@/_components/ui/calendar'
 import {
@@ -107,6 +109,20 @@ export function AddAppointmentForm({
     },
   })
 
+  const selectedDoctorId = form.watch('doctorId')
+  const selectedPatientId = form.watch('patientId')
+  const selectedDate = form.watch('date')
+
+  const { data: doctorAvailableTimes } = useQuery({
+    queryKey: ['available-times', selectedDate, selectedDoctorId],
+    queryFn: async () =>
+      getAvailableTimes({
+        date: dayjs(selectedDate).format('YYYY-MM-DD'),
+        doctorId: selectedDoctorId,
+      }),
+    enabled: !!selectedDate && !!selectedDoctorId,
+  })
+
   const addAppointmentAction = useAction(addAppointment, {
     onSuccess: () => {
       toast.success('Agendamento criado com sucesso')
@@ -116,10 +132,6 @@ export function AddAppointmentForm({
       toast.error('Erro ao criar agendamento')
     },
   })
-
-  const doctorId = form.watch('doctorId')
-  const patientId = form.watch('patientId')
-  const date = form.watch('date')
 
   async function onSubmit(data: AddAppointmentFormData) {
     const appointmentDate = dayjs(data.date)
@@ -139,8 +151,8 @@ export function AddAppointmentForm({
   }
 
   useEffect(() => {
-    if (doctorId) {
-      const doctor = doctors.find((d) => d.id === doctorId)
+    if (selectedDoctorId) {
+      const doctor = doctors.find((d) => d.id === selectedDoctorId)
       setSelectedDoctor(doctor ?? null)
       if (doctor) {
         form.setValue('appointmentPriceInCents', doctor.appointmentPriceInCents)
@@ -149,7 +161,7 @@ export function AddAppointmentForm({
       setSelectedDoctor(null)
       form.setValue('appointmentPriceInCents', 0)
     }
-  }, [doctorId, doctors, form])
+  }, [selectedDoctorId, doctors, form])
 
   return (
     <DialogContent onCloseAutoFocus={handleDialogClose}>
@@ -250,7 +262,7 @@ export function AddAppointmentForm({
                         <Button
                           variant="outline"
                           className={`w-full pl-3 text-left font-normal ${!field.value && 'text-muted-foreground'}`}
-                          disabled={!patientId || !doctorId}
+                          disabled={!selectedPatientId || !selectedDoctorId}
                         >
                           {field.value ? (
                             dayjs(field.value).format('DD [de] MMMM [de] YYYY')
@@ -286,7 +298,9 @@ export function AddAppointmentForm({
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
-                    disabled={!date || !patientId || !doctorId}
+                    disabled={
+                      !selectedDate || !selectedPatientId || !selectedDoctorId
+                    }
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -294,16 +308,15 @@ export function AddAppointmentForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {selectedDoctor && (
-                        <>
-                          <SelectItem value="09:00">09:00</SelectItem>
-                          <SelectItem value="10:00">10:00</SelectItem>
-                          <SelectItem value="11:00">11:00</SelectItem>
-                          <SelectItem value="14:00">14:00</SelectItem>
-                          <SelectItem value="15:00">15:00</SelectItem>
-                          <SelectItem value="16:00">16:00</SelectItem>
-                        </>
-                      )}
+                      {doctorAvailableTimes?.data?.map((time) => (
+                        <SelectItem
+                          key={time.value}
+                          value={time.value}
+                          disabled={!time.isAvailable}
+                        >
+                          {time.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
