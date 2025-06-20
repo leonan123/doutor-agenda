@@ -7,13 +7,12 @@ import dayjs from 'dayjs'
 import { CalendarIcon, Loader2Icon } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
 import { useEffect, useRef, useState } from 'react'
-import { ptBR } from 'react-day-picker/locale'
 import { useForm } from 'react-hook-form'
 import { NumericFormat } from 'react-number-format'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
-import { upsertAppointment } from '@/_actions/upsert-appointment'
+import { addAppointment } from '@/_actions/add-appointment'
 import { Button } from '@/_components/ui/button'
 import { Calendar } from '@/_components/ui/calendar'
 import {
@@ -48,7 +47,7 @@ import type { doctorsTable, patientsTable } from '@/_db/schema'
 
 dayjs.locale('pt-br')
 
-const upsertAppointmentFormSchema = z
+const addAppointmentFormSchema = z
   .object({
     patientId: z.string().uuid({ message: 'Selecione um paciente' }),
     doctorId: z.string().uuid({ message: 'Selecione um médico' }),
@@ -81,24 +80,24 @@ const upsertAppointmentFormSchema = z
     },
   )
 
-type UpsertAppointmentFormData = z.infer<typeof upsertAppointmentFormSchema>
+type AddAppointmentFormData = z.infer<typeof addAppointmentFormSchema>
 
-interface UpsertAppointmentFormProps {
+interface AddAppointmentFormProps {
   patients: (typeof patientsTable.$inferSelect)[]
   doctors: (typeof doctorsTable.$inferSelect)[]
 }
 
-type TSelectedDoctor = typeof doctorsTable.$inferSelect | null
-
-export function UpsertAppointmentForm({
+export function AddAppointmentForm({
   patients,
   doctors,
-}: UpsertAppointmentFormProps) {
+}: AddAppointmentFormProps) {
+  const [selectedDoctor, setSelectedDoctor] = useState<
+    typeof doctorsTable.$inferSelect | null
+  >(null)
   const closeDialogButtonRef = useRef<HTMLButtonElement>(null)
-  const [selectedDoctor, setSelectedDoctor] = useState<TSelectedDoctor>(null)
 
-  const form = useForm<UpsertAppointmentFormData>({
-    resolver: zodResolver(upsertAppointmentFormSchema),
+  const form = useForm<AddAppointmentFormData>({
+    resolver: zodResolver(addAppointmentFormSchema),
     defaultValues: {
       patientId: '',
       doctorId: '',
@@ -108,7 +107,7 @@ export function UpsertAppointmentForm({
     },
   })
 
-  const upsertAppointmentAction = useAction(upsertAppointment, {
+  const addAppointmentAction = useAction(addAppointment, {
     onSuccess: () => {
       toast.success('Agendamento criado com sucesso')
       closeDialogButtonRef.current?.click()
@@ -122,16 +121,21 @@ export function UpsertAppointmentForm({
   const patientId = form.watch('patientId')
   const date = form.watch('date')
 
-  async function onSubmit(data: UpsertAppointmentFormData) {
+  async function onSubmit(data: AddAppointmentFormData) {
     const appointmentDate = dayjs(data.date)
       .hour(parseInt(data.time.split(':')[0]))
       .minute(parseInt(data.time.split(':')[1]))
       .toDate()
 
-    upsertAppointmentAction.execute({
+    addAppointmentAction.execute({
       ...data,
       date: appointmentDate,
     })
+  }
+
+  function handleDialogClose() {
+    form.reset()
+    setSelectedDoctor(null)
   }
 
   useEffect(() => {
@@ -148,7 +152,7 @@ export function UpsertAppointmentForm({
   }, [doctorId, doctors, form])
 
   return (
-    <DialogContent>
+    <DialogContent onCloseAutoFocus={handleDialogClose}>
       <DialogHeader>
         <DialogTitle>Novo agendamento</DialogTitle>
         <DialogDescription>
@@ -265,7 +269,6 @@ export function UpsertAppointmentForm({
                         disabled={(date) =>
                           date < dayjs().startOf('day').toDate()
                         }
-                        locale={ptBR}
                       />
                     </PopoverContent>
                   </Popover>
@@ -314,11 +317,11 @@ export function UpsertAppointmentForm({
           <Button
             type="submit"
             className="w-full"
-            disabled={upsertAppointmentAction.status === 'executing'}
+            disabled={addAppointmentAction.isExecuting}
           >
-            {upsertAppointmentAction.status === 'executing' ? (
+            {addAppointmentAction.isExecuting ? (
               <>
-                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2Icon className="animate-spin" />
                 Criando agendamento...
               </>
             ) : (

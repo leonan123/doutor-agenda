@@ -6,7 +6,7 @@ import { Button } from '@/_components/ui/button'
 import { Dialog, DialogTrigger } from '@/_components/ui/dialog'
 import type { doctorsTable, patientsTable } from '@/_db/schema'
 
-import { UpsertAppointmentForm } from './upsert-appointment-form'
+import { AddAppointmentForm } from './add-appointment-form'
 
 interface AddAppointmentButtonProps {
   patients: (typeof patientsTable.$inferSelect)[]
@@ -26,7 +26,7 @@ export function AddAppointmentButton({
         </Button>
       </DialogTrigger>
 
-      <UpsertAppointmentForm patients={patients} doctors={doctors} />
+      <AddAppointmentForm patients={patients} doctors={doctors} />
     </Dialog>
   )
 }
