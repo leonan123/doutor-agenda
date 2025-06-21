@@ -8,7 +8,7 @@
     "**/CVS": true,
     "**/node_modules": true
   },
-  "cSpell.words": ["Shadcn"],
+  "cSpell.words": ["nuqs", "Nuqs", "Shadcn"],
   "github.copilot.chat.codeGeneration.instructions": [
     {
       "file": ".instructions.md" // import instructions from file `general.instructions.md`
