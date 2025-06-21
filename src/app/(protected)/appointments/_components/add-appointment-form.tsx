@@ -314,9 +314,15 @@ export function AddAppointmentForm({
                           value={time.value}
                           disabled={!time.isAvailable}
                         >
-                          {time.label}
+                          {time.label} {!time.isAvailable && '(Indisponível)'}
                         </SelectItem>
                       ))}
+
+                      {doctorAvailableTimes?.data?.length === 0 && (
+                        <SelectItem value="empty" disabled>
+                          Nenhum horário disponível
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormMessage />
