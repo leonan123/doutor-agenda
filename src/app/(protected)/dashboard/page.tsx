@@ -1,4 +1,5 @@
-import { eq } from 'drizzle-orm'
+import dayjs from 'dayjs'
+import { and, count, eq, gte, lte, sum } from 'drizzle-orm'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -13,10 +14,16 @@ import {
   PageTitle,
 } from '@/_components/ui/page-container'
 import { db } from '@/_db'
-import { usersToClinicsTable } from '@/_db/schema'
+import {
+  appointmentsTable,
+  doctorsTable,
+  patientsTable,
+  usersToClinicsTable,
+} from '@/_db/schema'
 import { auth } from '@/_lib/auth'
 
 import { DatePickerWithRange } from './_components/date-picker'
+import { StatsCards } from './_components/stats-cards'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -24,7 +31,13 @@ export const metadata: Metadata = {
     'Acesse uma visão geral detalhada das principais métricas e resultados dos pacientes',
 }
 
-export default async function DashboardPage() {
+interface DashboardPageProps {
+  searchParams: Promise<{ from: string; to: string }>
+}
+
+export default async function DashboardPage({
+  searchParams,
+}: DashboardPageProps) {
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -37,9 +50,53 @@ export default async function DashboardPage() {
     where: eq(usersToClinicsTable.userId, session.user.id),
   })
 
-  if (clinics.length === 0) {
+  if (clinics.length === 0 || !session.user.clinic.id) {
     redirect('/clinic-form')
   }
+
+  const { from, to } = await searchParams
+
+  if (!from || !to) {
+    const defaultSearchParams = new URLSearchParams()
+    defaultSearchParams.set('from', dayjs().format('YYYY-MM-DD'))
+    defaultSearchParams.set('to', dayjs().add(1, 'month').format('YYYY-MM-DD'))
+
+    redirect(`/dashboard?${defaultSearchParams.toString()}`)
+  }
+
+  const [totalRevenue, totalPatients, totalDoctors, totalAppointments] =
+    await Promise.all([
+      db
+        .select({
+          total: sum(appointmentsTable.appointmentPriceInCents),
+        })
+        .from(appointmentsTable)
+        .where(
+          and(
+            eq(appointmentsTable.clinicId, session.user.clinic.id),
+            gte(appointmentsTable.date, new Date(from)),
+            lte(appointmentsTable.date, new Date(to)),
+          ),
+        ),
+      db
+        .select({
+          total: count(),
+        })
+        .from(patientsTable)
+        .where(eq(patientsTable.clinicId, session.user.clinic.id)),
+      db
+        .select({
+          total: count(),
+        })
+        .from(doctorsTable)
+        .where(eq(doctorsTable.clinicId, session.user.clinic.id)),
+      db
+        .select({
+          total: count(),
+        })
+        .from(appointmentsTable)
+        .where(eq(appointmentsTable.clinicId, session.user.clinic.id)),
+    ])
 
   return (
     <PageContainer>
@@ -57,8 +114,13 @@ export default async function DashboardPage() {
         </PageActions>
       </PageHeader>
 
-      <PageContent className="h-full rounded-lg bg-white px-6 py-5 shadow-sm">
-        {/* DADOS */}
+      <PageContent>
+        <StatsCards
+          totalAppointments={totalAppointments[0]?.total ?? 0}
+          totalDoctors={totalDoctors[0]?.total ?? 0}
+          totalPatients={totalPatients[0]?.total ?? 0}
+          totalRevenueInCents={totalRevenue[0]?.total ?? '0'}
+        />
       </PageContent>
     </PageContainer>
   )

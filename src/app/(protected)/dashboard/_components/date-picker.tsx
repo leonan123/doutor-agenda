@@ -39,11 +39,11 @@ export function DatePickerWithRange({ className }: ComponentProps<'div'>) {
 
   function handleDateChange(dateRange: DateRange | undefined) {
     if (dateRange?.from) {
-      setFrom(dateRange.from)
+      setFrom(dateRange.from, { shallow: false })
     }
 
     if (dateRange?.to) {
-      setTo(dateRange.to)
+      setTo(dateRange.to, { shallow: false })
     }
 
     setDate(dateRange)
@@ -63,7 +63,7 @@ export function DatePickerWithRange({ className }: ComponentProps<'div'>) {
           >
             <CalendarIcon />
 
-            <div className="flex-1">
+            <div className="flex-1" suppressHydrationWarning>
               {date?.from ? (
                 date.to ? (
                   <>
