@@ -1,5 +1,7 @@
 'use client'
 
+import 'dayjs/locale/pt-br'
+
 import dayjs from 'dayjs'
 import { DollarSignIcon } from 'lucide-react'
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
@@ -18,6 +20,8 @@ import {
   ChartTooltipContent,
 } from '@/_components/ui/chart'
 import { formatCurrencyInCents } from '@/_helpers/currency'
+
+dayjs.locale('pt-br')
 
 export const description = 'Agendamentos e faturamento'
 
@@ -140,7 +144,7 @@ export function AppointmentsChart({
                   }}
                   labelFormatter={(label, payload) => {
                     if (payload && payload[0]) {
-                      return dayjs(payload[0].payload.fullDate).format(
+                      return dayjs(payload[0].payload.date).format(
                         'DD/MM/YYYY (dddd)',
                       )
                     }
