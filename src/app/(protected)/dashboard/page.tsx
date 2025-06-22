@@ -1,10 +1,12 @@
 import dayjs from 'dayjs'
 import { and, count, desc, eq, gte, lte, sql, sum } from 'drizzle-orm'
+import { CalendarIcon } from 'lucide-react'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-import { Card } from '@/_components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/_components/ui/card'
+import { DataTable } from '@/_components/ui/data-table'
 import {
   PageActions,
   PageContainer,
@@ -23,6 +25,7 @@ import {
 } from '@/_db/schema'
 import { auth } from '@/_lib/auth'
 
+import { columns } from '../appointments/_components/table-columns'
 import { AppointmentsChart } from './_components/appointments-chart'
 import { DatePickerWithRange } from './_components/date-picker'
 import { StatsCards } from './_components/stats-cards'
@@ -77,6 +80,7 @@ export default async function DashboardPage({
     [totalAppointments],
     topDoctors,
     topSpecialties,
+    todayAppointments,
   ] = await Promise.all([
     db
       .select({
@@ -150,6 +154,17 @@ export default async function DashboardPage({
       )
       .groupBy(doctorsTable.specialty)
       .orderBy(desc(count(appointmentsTable.id))),
+    db.query.appointmentsTable.findMany({
+      where: and(
+        eq(appointmentsTable.clinicId, session.user.clinic.id),
+        gte(appointmentsTable.date, dayjs().startOf('day').toDate()),
+        lte(appointmentsTable.date, dayjs().endOf('day').toDate()),
+      ),
+      with: {
+        patient: true,
+        doctor: true,
+      },
+    }),
   ])
 
   const chartStartDate = dayjs().subtract(10, 'days').startOf('day').toDate()
@@ -207,7 +222,16 @@ export default async function DashboardPage({
       </div>
 
       <div className="grid grid-cols-1 gap-4 overflow-hidden pb-2 lg:h-[400px] lg:grid-cols-3 xl:grid-cols-[2.25fr_1fr]">
-        <Card></Card>
+        <Card>
+          <CardHeader className="flex items-center gap-3">
+            <CalendarIcon size={16} />
+            <CardTitle>Agendamentos de hoje</CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <DataTable columns={columns} data={todayAppointments} />
+          </CardContent>
+        </Card>
 
         <TopSpecialties
           topSpecialties={topSpecialties}

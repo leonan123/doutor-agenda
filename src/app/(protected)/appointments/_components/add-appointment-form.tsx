@@ -74,7 +74,9 @@ const addAppointmentFormSchema = z
         .hour(parseInt(data.time.split(':')[0]))
         .minute(parseInt(data.time.split(':')[1]))
 
-      return appointmentDate.isAfter(dayjs())
+      return (
+        !appointmentDate.isSame(dayjs()) || appointmentDate.isAfter(dayjs())
+      )
     },
     {
       message: 'A data e hora do agendamento devem ser futuras',

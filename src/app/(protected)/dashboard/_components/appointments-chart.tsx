@@ -68,7 +68,7 @@ export function AppointmentsChart({
       <CardHeader className="flex items-start gap-3">
         <DollarSignIcon size={16} />
 
-        <div className="space-y-0.5">
+        <div className="space-y-1.5">
           <CardTitle>Agendamentos e faturamento</CardTitle>
           <CardDescription>
             Mostrando os agendamentos e faturamento dos últimos 20 dias.
