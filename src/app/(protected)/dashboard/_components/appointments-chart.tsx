@@ -64,19 +64,19 @@ export function AppointmentsChart({
   })
 
   return (
-    <Card>
+    <Card className="lg:col-span-2 xl:col-auto">
       <CardHeader className="flex items-start gap-3">
         <DollarSignIcon size={16} />
 
-        <div>
+        <div className="space-y-0.5">
           <CardTitle>Agendamentos e faturamento</CardTitle>
           <CardDescription>
-            Agendamentos e faturamento dos últimos 20 dias.
+            Mostrando os agendamentos e faturamento dos últimos 20 dias.
           </CardDescription>
         </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="h-[280px] w-full">
           <AreaChart
             accessibilityLayer
             data={chartData}

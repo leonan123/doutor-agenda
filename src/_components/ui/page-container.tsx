@@ -15,9 +15,15 @@ export function PageContainer({ children, className }: PageContainerProps) {
   )
 }
 
-export function PageHeader({ children }: { children: ReactNode }) {
+export function PageHeader({ children, className }: ComponentProps<'div'>) {
   return (
-    <div data-slot="page-header" className="flex items-center justify-between">
+    <div
+      data-slot="page-header"
+      className={cn(
+        'flex flex-col justify-between gap-4 md:flex-row md:items-center',
+        className,
+      )}
+    >
       {children}
     </div>
   )
