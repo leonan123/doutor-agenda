@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 
+import { Card } from '@/_components/ui/card'
 import {
   PageActions,
   PageContainer,
@@ -26,6 +27,7 @@ import { AppointmentsChart } from './_components/appointments-chart'
 import { DatePickerWithRange } from './_components/date-picker'
 import { StatsCards } from './_components/stats-cards'
 import { TopDoctors } from './_components/top-doctors'
+import { TopSpecialties } from './_components/top-specialties'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -40,6 +42,8 @@ interface DashboardPageProps {
 export default async function DashboardPage({
   searchParams,
 }: DashboardPageProps) {
+  //await new Promise((resolve) => setTimeout(resolve, 5000))
+
   const session = await auth.api.getSession({
     headers: await headers(),
   })
@@ -72,6 +76,7 @@ export default async function DashboardPage({
     [totalDoctors],
     [totalAppointments],
     topDoctors,
+    topSpecialties,
   ] = await Promise.all([
     db
       .select({
@@ -102,7 +107,13 @@ export default async function DashboardPage({
         total: count(),
       })
       .from(appointmentsTable)
-      .where(eq(appointmentsTable.clinicId, session.user.clinic.id)),
+      .where(
+        and(
+          eq(appointmentsTable.clinicId, session.user.clinic.id),
+          gte(appointmentsTable.date, new Date(from)),
+          lte(appointmentsTable.date, new Date(to)),
+        ),
+      ),
     db
       .select({
         id: doctorsTable.id,
@@ -122,6 +133,22 @@ export default async function DashboardPage({
       )
       .where(eq(doctorsTable.clinicId, session.user.clinic.id))
       .groupBy(doctorsTable.id)
+      .orderBy(desc(count(appointmentsTable.id))),
+    db
+      .select({
+        name: doctorsTable.specialty,
+        appointmentsCount: count(appointmentsTable.id),
+      })
+      .from(appointmentsTable)
+      .innerJoin(doctorsTable, eq(doctorsTable.id, appointmentsTable.doctorId))
+      .where(
+        and(
+          eq(appointmentsTable.clinicId, session.user.clinic.id),
+          gte(appointmentsTable.date, new Date(from)),
+          lte(appointmentsTable.date, new Date(to)),
+        ),
+      )
+      .groupBy(doctorsTable.specialty)
       .orderBy(desc(count(appointmentsTable.id))),
   ])
 
@@ -177,6 +204,15 @@ export default async function DashboardPage({
       <div className="grid grid-cols-1 gap-4 overflow-hidden pb-2 lg:h-[400px] lg:grid-cols-3 xl:grid-cols-[2.25fr_1fr]">
         <AppointmentsChart dailyAppointmentsData={dailyAppointmentsData} />
         <TopDoctors doctors={topDoctors} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 overflow-hidden pb-2 lg:h-[400px] lg:grid-cols-3 xl:grid-cols-[2.25fr_1fr]">
+        <Card></Card>
+
+        <TopSpecialties
+          topSpecialties={topSpecialties}
+          totalAppointments={totalAppointments.total}
+        />
       </div>
     </PageContainer>
   )

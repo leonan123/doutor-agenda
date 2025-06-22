@@ -81,7 +81,7 @@ export function AppointmentsChart({
             accessibilityLayer
             data={chartData}
             margin={{
-              left: 12,
+              left: 0,
               right: 12,
             }}
           >
