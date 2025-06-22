@@ -3,9 +3,11 @@
 import {
   BriefcaseMedical,
   CalendarPlus2,
+  GemIcon,
   LayoutDashboard,
   UsersIcon,
 } from 'lucide-react'
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 import {
@@ -17,7 +19,6 @@ import {
   SidebarMenuItem,
 } from '@/_components/ui/sidebar'
 
-// Menu items.
 const items = [
   {
     title: 'Dashboard',
@@ -52,13 +53,27 @@ export function MainMenu() {
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild isActive={pathname === item.url}>
-                <a href={item.url}>
+                <Link href={item.url}>
                   <item.icon />
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
+        </SidebarMenu>
+      </SidebarGroupContent>
+
+      <SidebarGroupContent>
+        <SidebarGroupLabel>Outros</SidebarGroupLabel>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === '/subscription'}>
+              <Link href="/subscription">
+                <GemIcon strokeWidth={1.5} />
+                <span>Planos</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
