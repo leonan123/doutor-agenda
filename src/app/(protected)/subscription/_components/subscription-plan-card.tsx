@@ -2,6 +2,7 @@
 
 import { loadStripe } from '@stripe/stripe-js'
 import { CheckCircle2Icon, Loader2Icon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useAction } from 'next-safe-action/hooks'
 
 import { createStripeCheckout } from '@/_actions/create-stripe-checkout'
@@ -15,10 +16,6 @@ import {
 } from '@/_components/ui/card'
 import { Separator } from '@/_components/ui/separator'
 
-interface SubscriptionPlanCardProps {
-  active?: boolean
-}
-
 const features = [
   'Cadastro de até 3 médicos',
   'Agendamentos ilimitados',
@@ -28,9 +25,17 @@ const features = [
   'Suporte via e-mail',
 ]
 
+interface SubscriptionPlanCardProps {
+  active?: boolean
+  userEmail: string
+}
+
 export default function SubscriptionPlanCard({
   active = false,
+  userEmail,
 }: SubscriptionPlanCardProps) {
+  const router = useRouter()
+
   const createStripeCheckoutAction = useAction(createStripeCheckout, {
     onSuccess: async ({ data }) => {
       if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
@@ -60,6 +65,12 @@ export default function SubscriptionPlanCard({
 
   function handleSubscribeClick() {
     createStripeCheckoutAction.execute()
+  }
+
+  function handleManagePlanClick() {
+    router.push(
+      `${process.env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_URL}?prefilled_email=${userEmail}`,
+    )
   }
 
   return (
@@ -114,7 +125,7 @@ export default function SubscriptionPlanCard({
         <Button
           className="w-full"
           variant="outline"
-          onClick={!active ? handleSubscribeClick : undefined}
+          onClick={!active ? handleSubscribeClick : handleManagePlanClick}
           disabled={createStripeCheckoutAction.isPending}
         >
           {createStripeCheckoutAction.isPending && (

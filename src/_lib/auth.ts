@@ -28,12 +28,18 @@ export const auth = betterAuth({
               name: true,
             },
           },
+          user: {
+            columns: {
+              plan: true,
+            },
+          },
         },
       })
 
       return {
         user: {
           ...user,
+          plan: userWithClinic?.user?.plan,
           clinic: {
             id: userWithClinic?.clinicId,
             name: userWithClinic?.clinic!.name,
@@ -45,6 +51,23 @@ export const auth = betterAuth({
   ],
   user: {
     modelName: 'usersTable',
+    additionalFields: {
+      stripeCustomerId: {
+        type: 'string',
+        fieldName: 'stripeCustomerId',
+        required: false,
+      },
+      stripeSubscriptionId: {
+        type: 'string',
+        fieldName: 'stripeSubscriptionId',
+        required: false,
+      },
+      plan: {
+        type: 'string',
+        fieldName: 'plan',
+        required: false,
+      },
+    },
   },
   session: {
     modelName: 'sessionsTable',
